@@ -5,6 +5,7 @@ import { test as base, expect, type Page } from "@playwright/test";
  * Tests seed/clear this key to control initial state.
  */
 export const STORAGE_KEY = "rvdar.state.v1";
+const SEED_MARKER = "__rvdar_e2e_seeded";
 
 export type SeedStreak = {
   current?: number;
@@ -67,6 +68,24 @@ export function buildSeed(partial: SeedState = {}) {
   };
 }
 
+async function gotoSeededApp(page: Page, seed: ReturnType<typeof buildSeed>) {
+  await page.addInitScript(
+    ([key, value, marker]) => {
+      try {
+        if (sessionStorage.getItem(marker as string)) return;
+        localStorage.clear();
+        localStorage.setItem(key as string, JSON.stringify(value));
+        sessionStorage.setItem(marker as string, "1");
+      } catch {
+        /* ignore */
+      }
+    },
+    [STORAGE_KEY, seed, SEED_MARKER] as const,
+  );
+  await page.goto("/");
+  await page.getByTestId("mission-panel").or(page.getByTestId("mission-expand")).first().waitFor();
+}
+
 /**
  * Custom Playwright fixture that:
  *   1. Wipes localStorage before app boot.
@@ -78,20 +97,9 @@ export function buildSeed(partial: SeedState = {}) {
  */
 export const test = base.extend<{ app: Page }>({
   app: async ({ page }, use) => {
-    await page.addInitScript(
-      ([key, seed]) => {
-        try {
-          localStorage.clear();
-          localStorage.setItem(key as string, JSON.stringify(seed));
-        } catch {
-          /* ignore */
-        }
-      },
-      [STORAGE_KEY, buildSeed()] as const,
-    );
-    await page.goto("/");
-    // Mission Panel only renders after the store hydrates from localStorage.
-    await page.getByTestId("mission-panel").waitFor();
+    // Seed exactly once before app boot. The session marker prevents reloads
+    // from wiping state that the app or test intentionally persisted.
+    await gotoSeededApp(page, buildSeed());
     await use(page);
   },
 });
@@ -103,16 +111,7 @@ export { expect };
  * scenarios where we need a known starting point.
  */
 export async function seedApp(page: Page, state: SeedState) {
-  const seed = buildSeed(state);
-  await page.addInitScript(
-    ([key, value]) => {
-      localStorage.clear();
-      localStorage.setItem(key as string, JSON.stringify(value));
-    },
-    [STORAGE_KEY, seed] as const,
-  );
-  await page.goto("/");
-  await page.getByTestId("mission-panel").or(page.getByTestId("mission-expand")).first().waitFor();
+  await gotoSeededApp(page, buildSeed(state));
 }
 
 /** Read the persisted state directly from localStorage. */
@@ -125,7 +124,14 @@ export async function readState(page: Page) {
 
 /** Add a task via the Mission Panel input. */
 export async function addMissionTask(page: Page, title: string) {
+  const expand = page.getByTestId("mission-expand");
+  if (await expand.isVisible().catch(() => false)) {
+    await expand.click();
+  }
+
   const input = page.getByTestId("mission-add-input");
+  await expect(input).toBeVisible();
+  await expect(input).toBeEditable();
   await input.fill(title);
   await input.press("Enter");
   await expect(
