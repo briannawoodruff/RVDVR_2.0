@@ -76,16 +76,16 @@ export function EisenhowerMatrix({ tasks, onToggle, onDelete, onEdit }: Props) {
       </header>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <QuadrantCell id="q1" label="Do first" hint="Urgent · Important"
-          tone="bg-q1/40 border-[color:var(--q1-foreground)]/30 text-q1-foreground"
+          tone="bg-q1/50 border-current/20 text-q1-foreground"
           tasks={by("q1")} onToggle={onToggle} onDelete={onDelete} onEdit={onEdit} />
         <QuadrantCell id="q2" label="Schedule" hint="Important · Not urgent"
-          tone="bg-q2/40 border-[color:var(--q2-foreground)]/30 text-q2-foreground"
+          tone="bg-q2/50 border-current/20 text-q2-foreground"
           tasks={by("q2")} onToggle={onToggle} onDelete={onDelete} onEdit={onEdit} />
         <QuadrantCell id="q3" label="Delegate" hint="Urgent · Not important"
-          tone="bg-q3/40 border-[color:var(--q3-foreground)]/30 text-q3-foreground"
+          tone="bg-q3/50 border-current/20 text-q3-foreground"
           tasks={by("q3")} onToggle={onToggle} onDelete={onDelete} onEdit={onEdit} />
         <QuadrantCell id="q4" label="Let go" hint="Not urgent · Not important"
-          tone="bg-q4/40 border-[color:var(--q4-foreground)]/30 text-q4-foreground"
+          tone="bg-q4/50 border-current/20 text-q4-foreground"
           tasks={by("q4")} onToggle={onToggle} onDelete={onDelete} onEdit={onEdit} />
       </div>
     </section>

@@ -6,10 +6,10 @@ import type { Task } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const quadrantStyle: Record<string, string> = {
-  q1: "bg-q1 text-q1-foreground border-l-[color:var(--q1-foreground)]",
-  q2: "bg-q2 text-q2-foreground border-l-[color:var(--q2-foreground)]",
-  q3: "bg-q3 text-q3-foreground border-l-[color:var(--q3-foreground)]",
-  q4: "bg-q4 text-q4-foreground border-l-[color:var(--q4-foreground)]",
+  q1: "bg-q1 text-q1-foreground border-current/40",
+  q2: "bg-q2 text-q2-foreground border-current/40",
+  q3: "bg-q3 text-q3-foreground border-current/40",
+  q4: "bg-q4 text-q4-foreground border-current/40",
 };
 
 interface Props {
