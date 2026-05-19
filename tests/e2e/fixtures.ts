@@ -1,4 +1,4 @@
-import { test as base, expect, type Page } from "@playwright/test";
+import { test as base, expect, type Locator, type Page } from "@playwright/test";
 
 /**
  * Storage key used by the app's persistence layer (src/lib/store.ts).
@@ -152,6 +152,19 @@ export function taskByTitle(page: Page, title: string) {
   return page.getByTestId("task-card").filter({ hasText: title }).first();
 }
 
+/** Open the inline editor in a task card and return the editable input. */
+export async function openEditor(card: Locator) {
+  await card.scrollIntoViewIfNeeded();
+  await card.hover();
+  const button = card.getByTestId("task-edit");
+  await button.waitFor({ state: "visible" });
+  await button.click();
+  const input = card.getByTestId("task-edit-input");
+  await expect(input).toBeVisible();
+  await expect(input).toBeEditable();
+  return input;
+}
+
 /** Toggle a task's completion via its checkmark button. */
 export async function completeTask(page: Page, title: string) {
   const card = taskByTitle(page, title);
@@ -183,11 +196,12 @@ export async function completeTask(page: Page, title: string) {
  */
 export async function dragTaskTo(page: Page, sourceTitle: string, targetTestId: string) {
   const card = taskByTitle(page, sourceTitle);
+  const handle = card.getByTestId("task-drag-handle");
   const target = page.getByTestId(targetTestId);
 
-  const cardBox = await card.boundingBox();
+  const cardBox = await handle.boundingBox();
   const targetBox = await target.boundingBox();
-  if (!cardBox || !targetBox) throw new Error("drag source or target not visible");
+  if (!cardBox || !targetBox) throw new Error("drag source handle or target not visible");
 
   const startX = cardBox.x + cardBox.width / 2;
   const startY = cardBox.y + cardBox.height / 2;
