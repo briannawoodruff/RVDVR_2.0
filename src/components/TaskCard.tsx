@@ -145,16 +145,15 @@ export function TaskCard({ task, dndId, onToggle, onDelete, onEdit, compact }: P
           type="button"
           onClick={(e) => {
             stop(e);
-            console.log("[TaskCard] edit click", task.id, "editing was", editing);
             setEditing(true);
           }}
-
           aria-label="Edit task"
           data-testid="task-edit"
           className="rounded-md p-1.5 hover:bg-black/10 dark:hover:bg-white/10"
         >
           <Pencil className="h-3.5 w-3.5" />
         </button>
+
         <button
           onClick={(e) => {
             stop(e);
