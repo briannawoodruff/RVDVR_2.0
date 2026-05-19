@@ -7,7 +7,7 @@ export function StreakBadge({ streak }: { streak: StreakState }) {
   const toNext = streak.current === 0 ? 5 : 5 - (streak.current % 5);
 
   return (
-    <div className="flex items-center gap-3 rounded-full border bg-card/70 px-3 py-1.5 text-sm glass">
+    <div data-testid="streak-badge" data-streak={streak.current} className="flex items-center gap-3 rounded-full border bg-card/70 px-3 py-1.5 text-sm glass">
       {rest ? (
         <Leaf className="h-4 w-4 text-rest" />
       ) : (

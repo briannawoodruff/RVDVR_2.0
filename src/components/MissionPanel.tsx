@@ -39,6 +39,7 @@ export function MissionPanel({
     return (
       <button
         onClick={onToggleCollapsed}
+        data-testid="mission-expand"
         className="flex h-full w-12 flex-col items-center gap-3 rounded-2xl border bg-card/70 py-4 glass hover:bg-card"
         aria-label="Expand mission panel"
       >
@@ -53,6 +54,7 @@ export function MissionPanel({
   return (
     <aside
       ref={setNodeRef}
+      data-testid="mission-panel"
       className={cn(
         "flex h-full flex-col rounded-2xl border bg-card/70 glass transition-colors",
         isOver && "ring-2 ring-primary/40 bg-accent/40",
@@ -68,6 +70,7 @@ export function MissionPanel({
         <button
           onClick={onToggleCollapsed}
           aria-label="Collapse mission panel"
+          data-testid="mission-collapse"
           className="rounded-md p-1.5 text-muted-foreground hover:bg-accent"
         >
           <ChevronLeft className="h-4 w-4" />
@@ -82,12 +85,13 @@ export function MissionPanel({
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && submit()}
             placeholder="Add a task — small is fine"
+            data-testid="mission-add-input"
             className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground/70"
           />
         </div>
       </div>
 
-      <div className="flex-1 space-y-1.5 overflow-y-auto p-3">
+      <div data-testid="mission-list" className="flex-1 space-y-1.5 overflow-y-auto p-3">
         {tasks.length === 0 ? (
           <EmptyState />
         ) : (

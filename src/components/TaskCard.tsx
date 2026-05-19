@@ -51,6 +51,10 @@ export function TaskCard({ task, dndId, onToggle, onDelete, onEdit, compact }: P
   return (
     <div
       ref={setNodeRef}
+      data-testid="task-card"
+      data-task-id={task.id}
+      data-completed={task.completed ? "true" : "false"}
+      data-quadrant={task.quadrant ?? ""}
       style={{
         transform: CSS.Translate.toString(transform),
         transition,
@@ -71,6 +75,7 @@ export function TaskCard({ task, dndId, onToggle, onDelete, onEdit, compact }: P
 
       <button
         aria-label={task.completed ? "Mark incomplete" : "Mark complete"}
+        data-testid="task-toggle"
         onClick={(e) => {
           stop(e);
           onToggle(task.id);
@@ -89,6 +94,7 @@ export function TaskCard({ task, dndId, onToggle, onDelete, onEdit, compact }: P
       {editing ? (
         <input
           ref={inputRef}
+          data-testid="task-edit-input"
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           onBlur={commit}
@@ -105,6 +111,7 @@ export function TaskCard({ task, dndId, onToggle, onDelete, onEdit, compact }: P
         />
       ) : (
         <span
+          data-testid="task-title"
           className={cn(
             "flex-1 text-left text-sm leading-snug",
             task.completed && "line-through",
@@ -122,6 +129,7 @@ export function TaskCard({ task, dndId, onToggle, onDelete, onEdit, compact }: P
           }}
           onPointerDown={stop}
           aria-label="Edit task"
+          data-testid="task-edit"
           className="rounded-md p-1.5 hover:bg-black/10 dark:hover:bg-white/10"
         >
           <Pencil className="h-3.5 w-3.5" />
@@ -133,6 +141,7 @@ export function TaskCard({ task, dndId, onToggle, onDelete, onEdit, compact }: P
           }}
           onPointerDown={stop}
           aria-label="Delete task"
+          data-testid="task-delete"
           className="rounded-md p-1.5 hover:bg-destructive/20 hover:text-destructive"
         >
           <Trash2 className="h-3.5 w-3.5" />

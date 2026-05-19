@@ -22,6 +22,7 @@ function QuadrantCell({ id, label, hint, tone, tasks, onToggle, onDelete, onEdit
   return (
     <div
       ref={setNodeRef}
+      data-testid={`quadrant-${id}`}
       className={cn(
         "flex flex-col gap-2 rounded-2xl border-2 p-3 transition-all",
         tone,
@@ -67,7 +68,7 @@ interface Props {
 export function EisenhowerMatrix({ tasks, onToggle, onDelete, onEdit }: Props) {
   const by = (q: Quadrant) => tasks.filter((t) => t.quadrant === q);
   return (
-    <section className="rounded-2xl border bg-card/70 p-4 glass">
+    <section data-testid="priority-matrix" className="rounded-2xl border bg-card/70 p-4 glass">
       <header className="mb-3 flex items-center justify-between">
         <div>
           <h2 className="font-display text-lg font-semibold">Priority Matrix</h2>

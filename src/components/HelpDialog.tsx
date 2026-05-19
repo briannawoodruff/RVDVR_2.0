@@ -17,6 +17,7 @@ export function HelpDialog({ open, onClose }: Props) {
 
   return (
     <div
+      data-testid="help-dialog"
       className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/30 p-4 backdrop-blur-sm"
       onClick={onClose}
     >
@@ -76,6 +77,7 @@ export function HelpDialog({ open, onClose }: Props) {
 
         <button
           onClick={onClose}
+          data-testid="help-close"
           className="mt-6 w-full rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
         >
           I'm ready

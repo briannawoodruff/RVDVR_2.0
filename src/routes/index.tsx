@@ -108,13 +108,14 @@ function Index() {
                 onClick={actions.toggleFocus}
                 label="Focus mode"
                 active={state.focusMode}
+                testid="focus-toggle"
               >
                 <Focus className="h-4 w-4" />
               </IconBtn>
-              <IconBtn onClick={actions.toggleTheme} label="Toggle theme">
+              <IconBtn onClick={actions.toggleTheme} label="Toggle theme" testid="theme-toggle">
                 {state.theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               </IconBtn>
-              <IconBtn onClick={() => setHelpOpen(true)} label="Help">
+              <IconBtn onClick={() => setHelpOpen(true)} label="Help" testid="help-button">
                 <HelpCircle className="h-4 w-4" />
               </IconBtn>
             </div>
@@ -190,17 +191,20 @@ function IconBtn({
   onClick,
   label,
   active,
+  testid,
 }: {
   children: React.ReactNode;
   onClick: () => void;
   label: string;
   active?: boolean;
+  testid?: string;
 }) {
   return (
     <button
       onClick={onClick}
       aria-label={label}
       aria-pressed={active}
+      data-testid={testid}
       className={cn(
         "rounded-full border p-2 transition-colors",
         active ? "bg-primary text-primary-foreground border-primary" : "bg-card/70 hover:bg-accent",

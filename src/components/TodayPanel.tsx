@@ -21,6 +21,7 @@ export function TodayPanel({ tasks, onToggle, onDelete, onEdit }: Props) {
   return (
     <section
       ref={setNodeRef}
+      data-testid="today-panel"
       className={cn(
         "flex flex-col rounded-2xl border bg-card/70 glass transition-colors",
         isOver && "ring-2 ring-primary/50 bg-accent/40",
@@ -39,14 +40,15 @@ export function TodayPanel({ tasks, onToggle, onDelete, onEdit }: Props) {
         <div className="flex items-center gap-2">
           <div className="h-1.5 w-24 overflow-hidden rounded-full bg-muted">
             <div
+              data-testid="today-progress-bar"
               className="h-full rounded-full bg-primary transition-all duration-500"
               style={{ width: `${pct}%` }}
             />
           </div>
-          <span className="text-xs tabular-nums text-muted-foreground">{pct}%</span>
+          <span data-testid="today-progress-pct" className="text-xs tabular-nums text-muted-foreground">{pct}%</span>
         </div>
       </header>
-      <div className="flex-1 space-y-1.5 p-3 min-h-32">
+      <div data-testid="today-list" className="flex-1 space-y-1.5 p-3 min-h-32">
         {tasks.length === 0 ? (
           <div className="rounded-xl border border-dashed bg-background/40 p-6 text-center">
             <p className="text-sm text-muted-foreground">
