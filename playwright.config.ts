@@ -2,6 +2,10 @@ import { defineConfig, devices } from "@playwright/test";
 
 const PORT = Number(process.env.PORT ?? 5173);
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? `http://localhost:${PORT}`;
+// Runner used to invoke `vite dev` for the test webServer. Defaults to `npx`
+// (ships with Node) so it works on any machine without Bun. CI sets this to
+// `bunx` to preserve the existing Bun-based workflow.
+const runner = process.env.PLAYWRIGHT_RUNNER ?? "npx";
 
 export default defineConfig({
   testDir: "./tests/e2e",
