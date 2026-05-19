@@ -39,6 +39,7 @@ export function MissionPanel({
     return (
       <button
         onClick={onToggleCollapsed}
+        data-testid="mission-expand"
         className="flex h-full w-12 flex-col items-center gap-3 rounded-2xl border bg-card/70 py-4 glass hover:bg-card"
         aria-label="Expand mission panel"
       >
@@ -53,6 +54,7 @@ export function MissionPanel({
   return (
     <aside
       ref={setNodeRef}
+      data-testid="mission-panel"
       className={cn(
         "flex h-full flex-col rounded-2xl border bg-card/70 glass transition-colors",
         isOver && "ring-2 ring-primary/40 bg-accent/40",
