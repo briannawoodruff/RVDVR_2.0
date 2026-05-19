@@ -1,4 +1,4 @@
-import { test as base, expect, type Page } from "@playwright/test";
+import { test as base, expect, type Locator, type Page } from "@playwright/test";
 
 /**
  * Storage key used by the app's persistence layer (src/lib/store.ts).
@@ -150,6 +150,19 @@ export async function addMissionTask(page: Page, title: string) {
 /** Find a task card anywhere in the app by visible title. */
 export function taskByTitle(page: Page, title: string) {
   return page.getByTestId("task-card").filter({ hasText: title }).first();
+}
+
+/** Open the inline editor in a task card and return the editable input. */
+export async function openEditor(card: Locator) {
+  await card.scrollIntoViewIfNeeded();
+  await card.hover();
+  const button = card.getByTestId("task-edit");
+  await button.waitFor({ state: "visible" });
+  await button.click();
+  const input = card.getByTestId("task-edit-input");
+  await expect(input).toBeVisible();
+  await expect(input).toBeEditable();
+  return input;
 }
 
 /** Toggle a task's completion via its checkmark button. */
