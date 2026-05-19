@@ -48,7 +48,7 @@ export function TodayPanel({ tasks, onToggle, onDelete, onEdit }: Props) {
           <span data-testid="today-progress-pct" className="text-xs tabular-nums text-muted-foreground">{pct}%</span>
         </div>
       </header>
-      <div className="flex-1 space-y-1.5 p-3 min-h-32">
+      <div data-testid="today-list" className="flex-1 space-y-1.5 p-3 min-h-32">
         {tasks.length === 0 ? (
           <div className="rounded-xl border border-dashed bg-background/40 p-6 text-center">
             <p className="text-sm text-muted-foreground">
