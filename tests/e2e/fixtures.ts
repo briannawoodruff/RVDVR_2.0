@@ -5,6 +5,7 @@ import { test as base, expect, type Page } from "@playwright/test";
  * Tests seed/clear this key to control initial state.
  */
 export const STORAGE_KEY = "rvdar.state.v1";
+const SEED_MARKER = "__rvdar_e2e_seeded";
 
 export type SeedStreak = {
   current?: number;
@@ -51,7 +52,7 @@ export function buildSeed(partial: SeedState = {}) {
     id: t.id ?? `seed-${i}-${Math.random().toString(36).slice(2, 8)}`,
     title: t.title,
     notes: t.notes,
-    createdAt: t.createdAt ?? Date.now() - (1000 * i),
+    createdAt: t.createdAt ?? Date.now() - 1000 * i,
     completed: t.completed ?? false,
     completedAt: t.completedAt,
     today: t.today ?? false,
@@ -67,6 +68,24 @@ export function buildSeed(partial: SeedState = {}) {
   };
 }
 
+async function gotoSeededApp(page: Page, seed: ReturnType<typeof buildSeed>) {
+  await page.addInitScript(
+    ([key, value, marker]) => {
+      try {
+        if (sessionStorage.getItem(marker as string)) return;
+        localStorage.clear();
+        localStorage.setItem(key as string, JSON.stringify(value));
+        sessionStorage.setItem(marker as string, "1");
+      } catch {
+        /* ignore */
+      }
+    },
+    [STORAGE_KEY, seed, SEED_MARKER] as const,
+  );
+  await page.goto("/");
+  await page.getByTestId("mission-panel").or(page.getByTestId("mission-expand")).first().waitFor();
+}
+
 /**
  * Custom Playwright fixture that:
  *   1. Wipes localStorage before app boot.
@@ -77,22 +96,11 @@ export function buildSeed(partial: SeedState = {}) {
  * call it BEFORE the first navigation.
  */
 export const test = base.extend<{ app: Page }>({
-  app: async ({ page }, use) => {
-    await page.addInitScript(
-      ([key, seed]) => {
-        try {
-          localStorage.clear();
-          localStorage.setItem(key as string, JSON.stringify(seed));
-        } catch {
-          /* ignore */
-        }
-      },
-      [STORAGE_KEY, buildSeed()] as const,
-    );
-    await page.goto("/");
-    // Mission Panel only renders after the store hydrates from localStorage.
-    await page.getByTestId("mission-panel").waitFor();
-    await use(page);
+  app: async ({ page }, fixtureUse) => {
+    // Seed exactly once before app boot. The session marker prevents reloads
+    // from wiping state that the app or test intentionally persisted.
+    await gotoSeededApp(page, buildSeed());
+    await fixtureUse(page);
   },
 });
 
@@ -103,16 +111,7 @@ export { expect };
  * scenarios where we need a known starting point.
  */
 export async function seedApp(page: Page, state: SeedState) {
-  const seed = buildSeed(state);
-  await page.addInitScript(
-    ([key, value]) => {
-      localStorage.clear();
-      localStorage.setItem(key as string, JSON.stringify(value));
-    },
-    [STORAGE_KEY, seed] as const,
-  );
-  await page.goto("/");
-  await page.getByTestId("mission-panel").or(page.getByTestId("mission-expand")).first().waitFor();
+  await gotoSeededApp(page, buildSeed(state));
 }
 
 /** Read the persisted state directly from localStorage. */
@@ -125,12 +124,27 @@ export async function readState(page: Page) {
 
 /** Add a task via the Mission Panel input. */
 export async function addMissionTask(page: Page, title: string) {
+  const expand = page.getByTestId("mission-expand");
+  if (await expand.isVisible().catch(() => false)) {
+    await expand.click();
+  }
+
   const input = page.getByTestId("mission-add-input");
+  await expect(input).toBeVisible();
+  await expect(input).toBeEditable();
   await input.fill(title);
   await input.press("Enter");
   await expect(
     page.getByTestId("mission-list").getByTestId("task-card").filter({ hasText: title }),
   ).toBeVisible();
+  await page.waitForFunction(
+    ([key, taskTitle]) => {
+      const raw = localStorage.getItem(key as string);
+      if (!raw) return false;
+      return JSON.parse(raw).tasks?.some((t: { title: string }) => t.title === taskTitle);
+    },
+    [STORAGE_KEY, title] as const,
+  );
 }
 
 /** Find a task card anywhere in the app by visible title. */
@@ -143,6 +157,16 @@ export async function completeTask(page: Page, title: string) {
   const card = taskByTitle(page, title);
   await card.getByTestId("task-toggle").click();
   await expect(card).toHaveAttribute("data-completed", "true");
+  await page.waitForFunction(
+    ([key, taskTitle]) => {
+      const raw = localStorage.getItem(key as string);
+      if (!raw) return false;
+      return JSON.parse(raw).tasks?.some(
+        (t: { title: string; completed: boolean }) => t.title === taskTitle && t.completed,
+      );
+    },
+    [STORAGE_KEY, title] as const,
+  );
 }
 
 /**
@@ -157,11 +181,7 @@ export async function completeTask(page: Page, title: string) {
  * pointer drag with manual mouse moves which dnd-kit's PointerSensor handles
  * deterministically when the distance threshold (5px) is crossed.
  */
-export async function dragTaskTo(
-  page: Page,
-  sourceTitle: string,
-  targetTestId: string,
-) {
+export async function dragTaskTo(page: Page, sourceTitle: string, targetTestId: string) {
   const card = taskByTitle(page, sourceTitle);
   const target = page.getByTestId(targetTestId);
 

@@ -27,15 +27,13 @@ test.describe("reordering persists", () => {
     });
 
     const titles = async () =>
-      page
-        .getByTestId("mission-list")
-        .getByTestId("task-title")
-        .allTextContents();
+      page.getByTestId("mission-list").getByTestId("task-title").allTextContents();
 
     expect(await titles()).toEqual(["First", "Second", "Third"]);
 
     await page.reload();
     await page.getByTestId("mission-panel").waitFor();
+    await expect(page.getByTestId("mission-list").getByTestId("task-card").first()).toBeVisible();
     expect(await titles()).toEqual(["First", "Second", "Third"]);
   });
 
@@ -61,6 +59,7 @@ test.describe("reordering persists", () => {
     });
     await page.reload();
     await page.getByTestId("mission-panel").waitFor();
+    await expect(page.getByTestId("mission-list").getByTestId("task-card").first()).toBeVisible();
 
     const titles = await page
       .getByTestId("mission-list")
@@ -87,6 +86,7 @@ test.describe("reordering persists", () => {
     });
     await page.reload();
     await page.getByTestId("mission-panel").waitFor();
+    await expect(page.getByTestId("mission-list").getByTestId("task-card").first()).toBeVisible();
 
     // Each task is still in its correct pane.
     await expect(
