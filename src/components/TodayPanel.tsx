@@ -40,11 +40,12 @@ export function TodayPanel({ tasks, onToggle, onDelete, onEdit }: Props) {
         <div className="flex items-center gap-2">
           <div className="h-1.5 w-24 overflow-hidden rounded-full bg-muted">
             <div
+              data-testid="today-progress-bar"
               className="h-full rounded-full bg-primary transition-all duration-500"
               style={{ width: `${pct}%` }}
             />
           </div>
-          <span className="text-xs tabular-nums text-muted-foreground">{pct}%</span>
+          <span data-testid="today-progress-pct" className="text-xs tabular-nums text-muted-foreground">{pct}%</span>
         </div>
       </header>
       <div className="flex-1 space-y-1.5 p-3 min-h-32">
