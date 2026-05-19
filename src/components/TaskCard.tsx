@@ -75,6 +75,7 @@ export function TaskCard({ task, dndId, onToggle, onDelete, onEdit, compact }: P
 
       <button
         aria-label={task.completed ? "Mark incomplete" : "Mark complete"}
+        data-testid="task-toggle"
         onClick={(e) => {
           stop(e);
           onToggle(task.id);
@@ -93,6 +94,7 @@ export function TaskCard({ task, dndId, onToggle, onDelete, onEdit, compact }: P
       {editing ? (
         <input
           ref={inputRef}
+          data-testid="task-edit-input"
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           onBlur={commit}
@@ -109,6 +111,7 @@ export function TaskCard({ task, dndId, onToggle, onDelete, onEdit, compact }: P
         />
       ) : (
         <span
+          data-testid="task-title"
           className={cn(
             "flex-1 text-left text-sm leading-snug",
             task.completed && "line-through",
