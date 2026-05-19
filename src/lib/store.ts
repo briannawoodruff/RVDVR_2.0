@@ -99,6 +99,19 @@ export function useAppStore() {
     setState((s) => ({ ...s, tasks: s.tasks.filter((t) => !t.completed) }));
   }, []);
 
+  const reorderRelative = useCallback((activeTaskId: string, overTaskId: string) => {
+    if (activeTaskId === overTaskId) return;
+    setState((s) => {
+      const from = s.tasks.findIndex((t) => t.id === activeTaskId);
+      const to = s.tasks.findIndex((t) => t.id === overTaskId);
+      if (from === -1 || to === -1) return s;
+      const next = s.tasks.slice();
+      const [moved] = next.splice(from, 1);
+      next.splice(to, 0, moved);
+      return { ...s, tasks: next };
+    });
+  }, []);
+
   const setOnboarded = useCallback(
     () => setState((s) => ({ ...s, hasOnboarded: true })),
     [],
@@ -121,6 +134,7 @@ export function useAppStore() {
       moveToToday,
       setQuadrant,
       clearCompleted,
+      reorderRelative,
       setOnboarded,
       toggleFocus,
       toggleTheme,

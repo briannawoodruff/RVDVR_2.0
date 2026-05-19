@@ -52,24 +52,38 @@ function Index() {
   const todayTasks = state.tasks.filter((t) => t.today);
   const missionTasks = state.tasks.filter((t) => !t.today);
 
+  function parseDndId(raw: string): { container: string; taskId: string } | null {
+    const i = raw.indexOf(":");
+    if (i === -1) return null;
+    return { container: raw.slice(0, i), taskId: raw.slice(i + 1) };
+  }
+
   function onDragStart(e: DragStartEvent) {
-    setActiveId(String(e.active.id));
+    const parsed = parseDndId(String(e.active.id));
+    setActiveId(parsed?.taskId ?? String(e.active.id));
   }
 
   function onDragEnd(e: DragEndEvent) {
     setActiveId(null);
-    const id = String(e.active.id);
-    const over = e.over?.id ? String(e.over.id) : null;
-    if (!over) return;
+    const active = parseDndId(String(e.active.id));
+    if (!active || !e.over) return;
+    const overRaw = String(e.over.id);
+    const overParsed = parseDndId(overRaw);
+    const targetContainer = overParsed ? overParsed.container : overRaw;
 
-    if (over === "today") {
-      actions.moveToToday(id, true);
-    } else if (over === "mission") {
-      actions.moveToToday(id, false);
-      actions.setQuadrant(id, null);
-    } else if (over.startsWith("quad-")) {
-      const q = over.replace("quad-", "") as Quadrant;
-      actions.setQuadrant(id, q);
+    if (targetContainer === "today") {
+      actions.moveToToday(active.taskId, true);
+    } else if (targetContainer === "mission") {
+      actions.moveToToday(active.taskId, false);
+      actions.setQuadrant(active.taskId, null);
+    } else if (targetContainer.startsWith("quad-")) {
+      const q = targetContainer.replace("quad-", "") as Quadrant;
+      actions.moveToToday(active.taskId, true);
+      actions.setQuadrant(active.taskId, q);
+    }
+
+    if (overParsed && overParsed.taskId !== active.taskId) {
+      actions.reorderRelative(active.taskId, overParsed.taskId);
     }
   }
 

@@ -1,4 +1,5 @@
 import { useDroppable } from "@dnd-kit/core";
+import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import type { Quadrant, Task } from "@/lib/types";
 import { TaskCard } from "./TaskCard";
 import { cn } from "@/lib/utils";
@@ -14,15 +15,17 @@ interface QuadProps {
   onEdit: (id: string, title: string) => void;
 }
 
-function Quadrant({ id, label, hint, tone, tasks, onToggle, onDelete, onEdit }: QuadProps) {
-  const { setNodeRef, isOver } = useDroppable({ id: `quad-${id}` });
+function QuadrantCell({ id, label, hint, tone, tasks, onToggle, onDelete, onEdit }: QuadProps) {
+  const containerId = `quad-${id}`;
+  const { setNodeRef, isOver } = useDroppable({ id: containerId });
+  const items = tasks.map((t) => `${containerId}:${t.id}`);
   return (
     <div
       ref={setNodeRef}
       className={cn(
-        "flex flex-col gap-2 rounded-2xl border p-3 transition-all",
+        "flex flex-col gap-2 rounded-2xl border-2 p-3 transition-all",
         tone,
-        isOver && "ring-2 ring-primary/40 scale-[1.01]",
+        isOver && "ring-2 ring-primary/50 scale-[1.01]",
       )}
     >
       <div>
@@ -31,20 +34,23 @@ function Quadrant({ id, label, hint, tone, tasks, onToggle, onDelete, onEdit }: 
       </div>
       <div className="flex-1 space-y-1.5 min-h-20">
         {tasks.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-current/20 p-3 text-center text-[11px] opacity-50">
+          <div className="rounded-lg border border-dashed border-current/30 p-3 text-center text-[11px] opacity-60">
             Drop a task
           </div>
         ) : (
-          tasks.map((t) => (
-            <TaskCard
-              key={t.id}
-              task={t}
-              onToggle={onToggle}
-              onDelete={onDelete}
-              onEdit={onEdit}
-              compact
-            />
-          ))
+          <SortableContext items={items} strategy={verticalListSortingStrategy}>
+            {tasks.map((t) => (
+              <TaskCard
+                key={t.id}
+                task={t}
+                dndId={`${containerId}:${t.id}`}
+                onToggle={onToggle}
+                onDelete={onDelete}
+                onEdit={onEdit}
+                compact
+              />
+            ))}
+          </SortableContext>
         )}
       </div>
     </div>
@@ -69,46 +75,18 @@ export function EisenhowerMatrix({ tasks, onToggle, onDelete, onEdit }: Props) {
         </div>
       </header>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <Quadrant
-          id="q1"
-          label="Do first"
-          hint="Urgent · Important"
-          tone="bg-q1 text-q1-foreground"
-          tasks={by("q1")}
-          onToggle={onToggle}
-          onDelete={onDelete}
-          onEdit={onEdit}
-        />
-        <Quadrant
-          id="q2"
-          label="Schedule"
-          hint="Important · Not urgent"
-          tone="bg-q2 text-q2-foreground"
-          tasks={by("q2")}
-          onToggle={onToggle}
-          onDelete={onDelete}
-          onEdit={onEdit}
-        />
-        <Quadrant
-          id="q3"
-          label="Delegate"
-          hint="Urgent · Not important"
-          tone="bg-q3 text-q3-foreground"
-          tasks={by("q3")}
-          onToggle={onToggle}
-          onDelete={onDelete}
-          onEdit={onEdit}
-        />
-        <Quadrant
-          id="q4"
-          label="Let go"
-          hint="Not urgent · Not important"
-          tone="bg-q4 text-q4-foreground"
-          tasks={by("q4")}
-          onToggle={onToggle}
-          onDelete={onDelete}
-          onEdit={onEdit}
-        />
+        <QuadrantCell id="q1" label="Do first" hint="Urgent · Important"
+          tone="bg-q1/50 border-current/20 text-q1-foreground"
+          tasks={by("q1")} onToggle={onToggle} onDelete={onDelete} onEdit={onEdit} />
+        <QuadrantCell id="q2" label="Schedule" hint="Important · Not urgent"
+          tone="bg-q2/50 border-current/20 text-q2-foreground"
+          tasks={by("q2")} onToggle={onToggle} onDelete={onDelete} onEdit={onEdit} />
+        <QuadrantCell id="q3" label="Delegate" hint="Urgent · Not important"
+          tone="bg-q3/50 border-current/20 text-q3-foreground"
+          tasks={by("q3")} onToggle={onToggle} onDelete={onDelete} onEdit={onEdit} />
+        <QuadrantCell id="q4" label="Let go" hint="Not urgent · Not important"
+          tone="bg-q4/50 border-current/20 text-q4-foreground"
+          tasks={by("q4")} onToggle={onToggle} onDelete={onDelete} onEdit={onEdit} />
       </div>
     </section>
   );
