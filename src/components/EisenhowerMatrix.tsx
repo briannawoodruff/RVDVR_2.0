@@ -22,6 +22,7 @@ function QuadrantCell({ id, label, hint, tone, tasks, onToggle, onDelete, onEdit
   return (
     <div
       ref={setNodeRef}
+      data-testid={`quadrant-${id}`}
       className={cn(
         "flex flex-col gap-2 rounded-2xl border-2 p-3 transition-all",
         tone,
