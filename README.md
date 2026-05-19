@@ -1,5 +1,5 @@
 <div id="header" align="center">
-  <a target="_blank" rel="noopener noreferrer" href="https://rvdvr.com/"><img src="src/assets/images/logos/RVDVR-logo-white.svg" width="200"/></a>
+
   <h3>RVDΛR is a tool to simplify the overwhelming and never ending to do list by helping you prioritize your tasks into more manageable pieces using the Eisenhower Matrix.</h3>
 
   ---
