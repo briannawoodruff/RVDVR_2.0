@@ -137,6 +137,14 @@ export async function addMissionTask(page: Page, title: string) {
   await expect(
     page.getByTestId("mission-list").getByTestId("task-card").filter({ hasText: title }),
   ).toBeVisible();
+  await page.waitForFunction(
+    ([key, taskTitle]) => {
+      const raw = localStorage.getItem(key as string);
+      if (!raw) return false;
+      return JSON.parse(raw).tasks?.some((t: { title: string }) => t.title === taskTitle);
+    },
+    [STORAGE_KEY, title] as const,
+  );
 }
 
 /** Find a task card anywhere in the app by visible title. */
@@ -149,6 +157,16 @@ export async function completeTask(page: Page, title: string) {
   const card = taskByTitle(page, title);
   await card.getByTestId("task-toggle").click();
   await expect(card).toHaveAttribute("data-completed", "true");
+  await page.waitForFunction(
+    ([key, taskTitle]) => {
+      const raw = localStorage.getItem(key as string);
+      if (!raw) return false;
+      return JSON.parse(raw).tasks?.some((t: { title: string; completed: boolean }) => (
+        t.title === taskTitle && t.completed
+      ));
+    },
+    [STORAGE_KEY, title] as const,
+  );
 }
 
 /**
