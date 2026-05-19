@@ -44,7 +44,7 @@ export function MissionPanel({
       >
         <ChevronRight className="h-4 w-4" />
         <span className="[writing-mode:vertical-rl] text-xs font-medium tracking-widest text-muted-foreground">
-          MISSION · {tasks.filter((t) => !t.completed).length}
+          MISSION PANEL · {tasks.filter((t) => !t.completed).length}
         </span>
       </button>
     );
@@ -60,7 +60,7 @@ export function MissionPanel({
     >
       <header className="flex items-center justify-between border-b px-4 py-3">
         <div>
-          <h2 className="font-display text-lg font-semibold">Mission</h2>
+          <h2 className="font-display text-lg font-semibold">Mission Panel</h2>
           <p className="text-xs text-muted-foreground">
             All your tasks. Drag what matters today →
           </p>
