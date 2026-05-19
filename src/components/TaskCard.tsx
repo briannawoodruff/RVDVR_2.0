@@ -1,28 +1,34 @@
-import { useDraggable } from "@dnd-kit/core";
-import { Check, GripVertical, Pencil, Trash2, X } from "lucide-react";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { Check, GripVertical, Pencil, Trash2 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import type { Task } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-const quadrantRing: Record<string, string> = {
-  q1: "border-l-q1-foreground/60",
-  q2: "border-l-q2-foreground/60",
-  q3: "border-l-q3-foreground/60",
-  q4: "border-l-q4-foreground/60",
+const quadrantStyle: Record<string, string> = {
+  q1: "bg-q1 text-q1-foreground border-l-[color:var(--q1-foreground)]",
+  q2: "bg-q2 text-q2-foreground border-l-[color:var(--q2-foreground)]",
+  q3: "bg-q3 text-q3-foreground border-l-[color:var(--q3-foreground)]",
+  q4: "bg-q4 text-q4-foreground border-l-[color:var(--q4-foreground)]",
 };
 
 interface Props {
   task: Task;
+  /** Stable id used by the sortable context this card lives in. */
+  dndId?: string;
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
   onEdit: (id: string, title: string) => void;
   compact?: boolean;
 }
 
-export function TaskCard({ task, onToggle, onDelete, onEdit, compact }: Props) {
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
-    id: task.id,
-    data: { task },
+// Stop drag-start when interacting with a control inside the card.
+const stop = (e: React.PointerEvent | React.MouseEvent) => e.stopPropagation();
+
+export function TaskCard({ task, dndId, onToggle, onDelete, onEdit, compact }: Props) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: dndId ?? task.id,
+    data: { taskId: task.id },
   });
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(task.title);
@@ -38,40 +44,43 @@ export function TaskCard({ task, onToggle, onDelete, onEdit, compact }: Props) {
     setEditing(false);
   };
 
-  const accent = task.quadrant ? quadrantRing[task.quadrant] : "border-l-border";
+  const accent = task.quadrant
+    ? quadrantStyle[task.quadrant]
+    : "bg-card border-l-primary/40";
 
   return (
     <div
       ref={setNodeRef}
       style={{
-        transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
+        transform: CSS.Translate.toString(transform),
+        transition,
         opacity: isDragging ? 0.4 : 1,
       }}
+      {...attributes}
+      {...listeners}
       className={cn(
-        "group relative flex items-center gap-2 rounded-xl border border-l-[3px] bg-card px-2.5 py-2 shadow-sm transition-all",
-        "hover:shadow-md hover:-translate-y-px",
+        "group relative flex items-center gap-2 rounded-xl border border-l-[5px] px-2.5 py-2 shadow-sm",
+        "touch-none cursor-grab active:cursor-grabbing select-none",
+        "hover:shadow-md hover:-translate-y-px transition-[box-shadow,transform]",
         accent,
         task.completed && "opacity-60",
         compact && "py-1.5 text-sm",
       )}
     >
-      <button
-        aria-label="Drag task"
-        {...attributes}
-        {...listeners}
-        className="touch-none cursor-grab text-muted-foreground/50 hover:text-muted-foreground active:cursor-grabbing"
-      >
-        <GripVertical className="h-4 w-4" />
-      </button>
+      <GripVertical className="h-4 w-4 shrink-0 opacity-40 group-hover:opacity-70" />
 
       <button
         aria-label={task.completed ? "Mark incomplete" : "Mark complete"}
-        onClick={() => onToggle(task.id)}
+        onClick={(e) => {
+          stop(e);
+          onToggle(task.id);
+        }}
+        onPointerDown={stop}
         className={cn(
           "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
           task.completed
-            ? "border-primary bg-primary text-primary-foreground"
-            : "border-border hover:border-primary",
+            ? "border-current bg-current/20"
+            : "border-current/40 hover:border-current",
         )}
       >
         {task.completed && <Check className="h-3 w-3" strokeWidth={3} />}
@@ -83,6 +92,8 @@ export function TaskCard({ task, onToggle, onDelete, onEdit, compact }: Props) {
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           onBlur={commit}
+          onPointerDown={stop}
+          onClick={stop}
           onKeyDown={(e) => {
             if (e.key === "Enter") commit();
             if (e.key === "Escape") {
@@ -93,29 +104,36 @@ export function TaskCard({ task, onToggle, onDelete, onEdit, compact }: Props) {
           className="flex-1 bg-transparent text-sm outline-none"
         />
       ) : (
-        <button
-          onDoubleClick={() => setEditing(true)}
+        <span
           className={cn(
             "flex-1 text-left text-sm leading-snug",
             task.completed && "line-through",
           )}
         >
           {task.title}
-        </button>
+        </span>
       )}
 
       <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
         <button
-          onClick={() => setEditing(true)}
+          onClick={(e) => {
+            stop(e);
+            setEditing(true);
+          }}
+          onPointerDown={stop}
           aria-label="Edit task"
-          className="rounded-md p-1.5 text-muted-foreground hover:bg-accent"
+          className="rounded-md p-1.5 hover:bg-black/10 dark:hover:bg-white/10"
         >
           <Pencil className="h-3.5 w-3.5" />
         </button>
         <button
-          onClick={() => onDelete(task.id)}
+          onClick={(e) => {
+            stop(e);
+            onDelete(task.id);
+          }}
+          onPointerDown={stop}
           aria-label="Delete task"
-          className="rounded-md p-1.5 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+          className="rounded-md p-1.5 hover:bg-destructive/20 hover:text-destructive"
         >
           <Trash2 className="h-3.5 w-3.5" />
         </button>
@@ -125,10 +143,18 @@ export function TaskCard({ task, onToggle, onDelete, onEdit, compact }: Props) {
 }
 
 export function TaskCardOverlay({ task }: { task: Task }) {
+  const accent = task.quadrant
+    ? quadrantStyle[task.quadrant]
+    : "bg-card border-l-primary/40";
   return (
-    <div className="flex items-center gap-2 rounded-xl border border-primary/40 bg-card px-2.5 py-2 shadow-lg ring-2 ring-primary/20">
-      <GripVertical className="h-4 w-4 text-muted-foreground" />
-      <div className="h-5 w-5 rounded-full border-2 border-border" />
+    <div
+      className={cn(
+        "flex items-center gap-2 rounded-xl border border-l-[5px] px-2.5 py-2 shadow-xl ring-2 ring-primary/30",
+        accent,
+      )}
+    >
+      <GripVertical className="h-4 w-4 opacity-60" />
+      <div className="h-5 w-5 rounded-full border-2 border-current/40" />
       <span className="text-sm">{task.title}</span>
     </div>
   );

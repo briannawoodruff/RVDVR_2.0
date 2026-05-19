@@ -1,4 +1,5 @@
 import { useDroppable } from "@dnd-kit/core";
+import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { Sunrise } from "lucide-react";
 import type { Task } from "@/lib/types";
 import { TaskCard } from "./TaskCard";
@@ -15,6 +16,7 @@ export function TodayPanel({ tasks, onToggle, onDelete, onEdit }: Props) {
   const { setNodeRef, isOver } = useDroppable({ id: "today" });
   const done = tasks.filter((t) => t.completed).length;
   const pct = tasks.length ? Math.round((done / tasks.length) * 100) : 0;
+  const items = tasks.map((t) => `today:${t.id}`);
 
   return (
     <section
@@ -52,15 +54,18 @@ export function TodayPanel({ tasks, onToggle, onDelete, onEdit }: Props) {
             </p>
           </div>
         ) : (
-          tasks.map((t) => (
-            <TaskCard
-              key={t.id}
-              task={t}
-              onToggle={onToggle}
-              onDelete={onDelete}
-              onEdit={onEdit}
-            />
-          ))
+          <SortableContext items={items} strategy={verticalListSortingStrategy}>
+            {tasks.map((t) => (
+              <TaskCard
+                key={t.id}
+                task={t}
+                dndId={`today:${t.id}`}
+                onToggle={onToggle}
+                onDelete={onDelete}
+                onEdit={onEdit}
+              />
+            ))}
+          </SortableContext>
         )}
       </div>
     </section>

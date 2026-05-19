@@ -1,4 +1,5 @@
 import { useDroppable } from "@dnd-kit/core";
+import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { useState } from "react";
 import type { Task } from "@/lib/types";
@@ -26,6 +27,7 @@ export function MissionPanel({
 }: Props) {
   const [draft, setDraft] = useState("");
   const { setNodeRef, isOver } = useDroppable({ id: "mission" });
+  const items = tasks.map((t) => `mission:${t.id}`);
 
   const submit = () => {
     if (!draft.trim()) return;
@@ -89,15 +91,18 @@ export function MissionPanel({
         {tasks.length === 0 ? (
           <EmptyState />
         ) : (
-          tasks.map((t) => (
-            <TaskCard
-              key={t.id}
-              task={t}
-              onToggle={onToggle}
-              onDelete={onDelete}
-              onEdit={onEdit}
-            />
-          ))
+          <SortableContext items={items} strategy={verticalListSortingStrategy}>
+            {tasks.map((t) => (
+              <TaskCard
+                key={t.id}
+                task={t}
+                dndId={`mission:${t.id}`}
+                onToggle={onToggle}
+                onDelete={onDelete}
+                onEdit={onEdit}
+              />
+            ))}
+          </SortableContext>
         )}
       </div>
     </aside>
