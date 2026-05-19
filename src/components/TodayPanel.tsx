@@ -21,6 +21,7 @@ export function TodayPanel({ tasks, onToggle, onDelete, onEdit }: Props) {
   return (
     <section
       ref={setNodeRef}
+      data-testid="today-panel"
       className={cn(
         "flex flex-col rounded-2xl border bg-card/70 glass transition-colors",
         isOver && "ring-2 ring-primary/50 bg-accent/40",
