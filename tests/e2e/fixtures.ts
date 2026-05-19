@@ -13,7 +13,7 @@ export const test = base.extend<{ app: Page }>({
       try {
         localStorage.clear();
         localStorage.setItem(
-          "rvdar:v1",
+          "rvdar.state.v1",
           JSON.stringify({
             tasks: [],
             streak: { current: 0, lastCompletedDate: null, restDaysBanked: 0 },
