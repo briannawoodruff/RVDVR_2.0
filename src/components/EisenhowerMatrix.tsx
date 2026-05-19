@@ -68,7 +68,7 @@ interface Props {
 export function EisenhowerMatrix({ tasks, onToggle, onDelete, onEdit }: Props) {
   const by = (q: Quadrant) => tasks.filter((t) => t.quadrant === q);
   return (
-    <section className="rounded-2xl border bg-card/70 p-4 glass">
+    <section data-testid="priority-matrix" className="rounded-2xl border bg-card/70 p-4 glass">
       <header className="mb-3 flex items-center justify-between">
         <div>
           <h2 className="font-display text-lg font-semibold">Priority Matrix</h2>
