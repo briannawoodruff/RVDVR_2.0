@@ -191,17 +191,20 @@ function IconBtn({
   onClick,
   label,
   active,
+  testid,
 }: {
   children: React.ReactNode;
   onClick: () => void;
   label: string;
   active?: boolean;
+  testid?: string;
 }) {
   return (
     <button
       onClick={onClick}
       aria-label={label}
       aria-pressed={active}
+      data-testid={testid}
       className={cn(
         "rounded-full border p-2 transition-colors",
         active ? "bg-primary text-primary-foreground border-primary" : "bg-card/70 hover:bg-accent",
