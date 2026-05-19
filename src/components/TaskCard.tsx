@@ -42,15 +42,19 @@ export function TaskCard({ task, dndId, onToggle, onDelete, onEdit, compact }: P
   const [draft, setDraft] = useState(task.title);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  console.log("[TaskCard] render", task.id, "editing=", editing);
+
   useEffect(() => {
     if (editing) inputRef.current?.focus();
   }, [editing]);
 
   const commit = () => {
+    console.log("[TaskCard] commit called", task.id);
     const t = draft.trim();
     if (t && t !== task.title) onEdit(task.id, t);
     setEditing(false);
   };
+
 
   const accent = task.quadrant
     ? quadrantStyle[task.quadrant]
