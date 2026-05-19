@@ -129,6 +129,7 @@ export function TaskCard({ task, dndId, onToggle, onDelete, onEdit, compact }: P
           }}
           onPointerDown={stop}
           aria-label="Edit task"
+          data-testid="task-edit"
           className="rounded-md p-1.5 hover:bg-black/10 dark:hover:bg-white/10"
         >
           <Pencil className="h-3.5 w-3.5" />
@@ -140,6 +141,7 @@ export function TaskCard({ task, dndId, onToggle, onDelete, onEdit, compact }: P
           }}
           onPointerDown={stop}
           aria-label="Delete task"
+          data-testid="task-delete"
           className="rounded-md p-1.5 hover:bg-destructive/20 hover:text-destructive"
         >
           <Trash2 className="h-3.5 w-3.5" />
