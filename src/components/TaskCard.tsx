@@ -138,10 +138,13 @@ export function TaskCard({ task, dndId, onToggle, onDelete, onEdit, compact }: P
 
       <div className="flex items-center gap-0.5 opacity-60 transition-opacity hover:opacity-100 focus-within:opacity-100">
         <button
+          type="button"
           onClick={(e) => {
             stop(e);
+            console.log("[TaskCard] edit click", task.id, "editing was", editing);
             setEditing(true);
           }}
+
           aria-label="Edit task"
           data-testid="task-edit"
           className="rounded-md p-1.5 hover:bg-black/10 dark:hover:bg-white/10"
