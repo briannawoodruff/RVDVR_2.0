@@ -17,6 +17,7 @@ export function HelpDialog({ open, onClose }: Props) {
 
   return (
     <div
+      data-testid="help-dialog"
       className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/30 p-4 backdrop-blur-sm"
       onClick={onClose}
     >
