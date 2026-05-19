@@ -1,4 +1,4 @@
-import { test, expect, addMissionTask, dragTaskTo, taskByTitle, readState } from "./fixtures";
+import { test, expect, addMissionTask, dragTaskTo, readState } from "./fixtures";
 
 /**
  * Drag & drop interacts with @dnd-kit through real pointer events.
