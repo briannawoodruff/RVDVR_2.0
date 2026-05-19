@@ -96,11 +96,11 @@ async function gotoSeededApp(page: Page, seed: ReturnType<typeof buildSeed>) {
  * call it BEFORE the first navigation.
  */
 export const test = base.extend<{ app: Page }>({
-  app: async ({ page }, use) => {
+  app: async ({ page }, fixtureUse) => {
     // Seed exactly once before app boot. The session marker prevents reloads
     // from wiping state that the app or test intentionally persisted.
     await gotoSeededApp(page, buildSeed());
-    await use(page);
+    await fixtureUse(page);
   },
 });
 
