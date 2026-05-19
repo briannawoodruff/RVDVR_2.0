@@ -196,11 +196,12 @@ export async function completeTask(page: Page, title: string) {
  */
 export async function dragTaskTo(page: Page, sourceTitle: string, targetTestId: string) {
   const card = taskByTitle(page, sourceTitle);
+  const handle = card.getByTestId("task-drag-handle");
   const target = page.getByTestId(targetTestId);
 
-  const cardBox = await card.boundingBox();
+  const cardBox = await handle.boundingBox();
   const targetBox = await target.boundingBox();
-  if (!cardBox || !targetBox) throw new Error("drag source or target not visible");
+  if (!cardBox || !targetBox) throw new Error("drag source handle or target not visible");
 
   const startX = cardBox.x + cardBox.width / 2;
   const startY = cardBox.y + cardBox.height / 2;
