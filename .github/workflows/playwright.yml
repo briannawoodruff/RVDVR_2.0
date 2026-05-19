@@ -36,6 +36,8 @@ jobs:
         run: bunx playwright install --with-deps ${{ matrix.project == 'mobile-chrome' && 'chromium' || matrix.project }}
 
       - name: Run Playwright tests
+        env:
+          PLAYWRIGHT_RUNNER: bunx
         run: bunx playwright test --project=${{ matrix.project }}
 
       - name: Upload Playwright report

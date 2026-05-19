@@ -1,65 +1,37 @@
-## Why the tests still time out
+## Problem
+`playwright.config.ts` hardcodes `bunx vite dev ...` as the webServer command. On your Windows machine without Bun installed, `bunx` is not recognized and Playwright can't start the dev server.
 
-`editing.spec.ts` (and the `edit task title via pencil` / `delete removes task` cases in `tasks.spec.ts`) all do:
+## Fix
+Make the webServer command runtime-agnostic so it works with whichever package manager is installed (npm, bun, pnpm, yarn).
 
-```ts
-await card.getByTestId("task-edit").click();
-await card.getByTestId("task-edit-input").fill("New name"); // ← 30 s timeout
-```
-
-The fill waits because `task-edit-input` never appears — i.e. `setEditing(true)` never runs. Two things in `src/components/TaskCard.tsx` conspire to make that click unreliable on headless Chromium:
-
-1. **The edit/delete buttons live in an `opacity-0 group-hover:opacity-100` row.** Playwright considers `opacity:0` "visible" and will click anyway, but the hit-test sometimes lands on the surrounding card (1 px gap, transform from `useSortable`) instead of the 14 px icon button.
-2. **The dnd-kit `{...listeners}` are spread on the entire card** with a `PointerSensor` activation distance of 5 px. The child `<button>` calls `e.stopPropagation()` on `onPointerDown`, which stops React-synthetic propagation — but Playwright's `click()` synthesizes `mouse.move → mouse.down → mouse.up`, and the move alone can be enough for the PointerSensor to start a pending drag on the parent before the React handler runs. When that happens the click event is swallowed and `editing` never flips.
-
-The streak/persistence/reordering tests don't hit this because `task-toggle` is rendered outside the hover-revealed actions row.
-
-## Fix (two layers, both small)
-
-### 1. Component: make the drag activator a dedicated handle
-
-In `src/components/TaskCard.tsx`:
-
-- Keep `setNodeRef`, `attributes`, `transform`, `transition` on the outer `<div>`.
-- Move `{...listeners}` off the card and onto the `<GripVertical>` element — wrap it in a `<button data-testid="task-drag-handle" aria-label="Drag task" {...listeners} className="cursor-grab active:cursor-grabbing touch-none">…</button>`.
-- Drop `touch-none cursor-grab active:cursor-grabbing select-none` from the card root (move only `cursor-grab` to the handle).
-- Drop the now-unneeded `onPointerDown={stop}` from `task-toggle`, `task-edit`, `task-delete` (they no longer compete with the sensor).
-
-This is the canonical dnd-kit "drag handle" pattern. Behavior the user sees is identical (card is still draggable), but interior buttons can no longer race the sensor.
-
-### 2. Component: always render the actions row, just dim it
-
-Replace `opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100` with `opacity-60 hover:opacity-100 focus-within:opacity-100`. Buttons are always hit-testable; the visual "fade in on hover" stays. (Pure presentation change; no logic change.)
-
-### 3. Tests: belt-and-suspenders
-
-In `tests/e2e/fixtures.ts` add a helper:
+### Change 1: `playwright.config.ts`
+Replace the hardcoded `bunx` with an env-driven runner that defaults to `npx` (which ships with Node.js and is universally available), and allow override via `PLAYWRIGHT_RUNNER`:
 
 ```ts
-export async function openEditor(card: Locator) {
-  await card.scrollIntoViewIfNeeded();
-  await card.hover();
-  const btn = card.getByTestId("task-edit");
-  await btn.waitFor({ state: "visible" });
-  await btn.click();
-  return card.getByTestId("task-edit-input");
-}
+const runner = process.env.PLAYWRIGHT_RUNNER ?? "npx";
+// ...
+command: `${runner} vite dev --port ${PORT} --host 127.0.0.1 --strictPort`,
 ```
 
-Refactor `tests/e2e/editing.spec.ts` and the `edit task title via pencil` / `delete removes task` cases in `tests/e2e/tasks.spec.ts` to use `openEditor(card)` (and a parallel `await card.hover()` before `task-delete`).
+CI (`.github/workflows/playwright.yml`) already uses `bunx`, so add `PLAYWRIGHT_RUNNER=bunx` to the CI env to preserve Bun usage there. Local users on npm get `npx` automatically; Bun users can `set PLAYWRIGHT_RUNNER=bunx` (or it just works if they prefer npx).
 
-### 4. Config: small safety margin
+### Change 2: `.github/workflows/playwright.yml`
+Add `env: PLAYWRIGHT_RUNNER: bunx` to the "Run Playwright tests" step so CI keeps using Bun.
 
-In `playwright.config.ts`:
+### Change 3 (optional, recommended): `package.json` scripts
+Add convenience scripts so you don't have to remember the flags:
+```json
+"test:e2e": "playwright test",
+"test:e2e:ui": "playwright test --ui",
+"test:e2e:debug": "playwright test --debug",
+"test:e2e:report": "playwright show-report"
+```
 
-- Add `expect: { timeout: 10_000 }` and `use.actionTimeout: 15_000`. Leaves room on the slow CI runner without masking real bugs.
+## After this lands, your Windows workflow becomes:
+```powershell
+npm install
+npx playwright install chromium
+npm run test:e2e
+```
 
-## Files touched
-
-- `src/components/TaskCard.tsx` — handle refactor + actions opacity.
-- `tests/e2e/fixtures.ts` — new `openEditor` helper.
-- `tests/e2e/editing.spec.ts` — use `openEditor`.
-- `tests/e2e/tasks.spec.ts` — hover before edit/delete; use `openEditor` for the edit case.
-- `playwright.config.ts` — `actionTimeout` + `expect.timeout`.
-
-No app logic, store, or persistence behavior is changed.
+No Bun required. CI continues running on Bun unchanged.
