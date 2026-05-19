@@ -108,13 +108,14 @@ function Index() {
                 onClick={actions.toggleFocus}
                 label="Focus mode"
                 active={state.focusMode}
+                testid="focus-toggle"
               >
                 <Focus className="h-4 w-4" />
               </IconBtn>
-              <IconBtn onClick={actions.toggleTheme} label="Toggle theme">
+              <IconBtn onClick={actions.toggleTheme} label="Toggle theme" testid="theme-toggle">
                 {state.theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               </IconBtn>
-              <IconBtn onClick={() => setHelpOpen(true)} label="Help">
+              <IconBtn onClick={() => setHelpOpen(true)} label="Help" testid="help-button">
                 <HelpCircle className="h-4 w-4" />
               </IconBtn>
             </div>
