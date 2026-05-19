@@ -29,17 +29,16 @@ export default defineConfig({
   webServer: process.env.PLAYWRIGHT_BASE_URL
     ? undefined
     : {
-        // In CI we build once and serve the static preview — far faster and
-        // more reliable than `vite dev` with the TanStack Start + Cloudflare
-        // plugin, which routinely needs >2min to be ready on a cold runner.
-        command: process.env.CI
-          ? `bun run build:dev && bunx vite preview --port ${PORT} --host 127.0.0.1 --strictPort`
-          : "bun run dev",
+        // `vite dev` with TanStack Start + Cloudflare plugin can take a long
+        // time to be ready on a cold CI runner. Bind to 127.0.0.1 explicitly
+        // and give it a generous timeout so the readiness probe doesn't fail.
+        command: `bunx vite dev --port ${PORT} --host 127.0.0.1 --strictPort`,
         url: baseURL,
         reuseExistingServer: !process.env.CI,
         timeout: 300_000,
         stdout: "pipe",
         stderr: "pipe",
       },
+
 
 });
