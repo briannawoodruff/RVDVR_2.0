@@ -136,13 +136,12 @@ export function TaskCard({ task, dndId, onToggle, onDelete, onEdit, compact }: P
         </span>
       )}
 
-      <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+      <div className="flex items-center gap-0.5 opacity-60 transition-opacity hover:opacity-100 focus-within:opacity-100">
         <button
           onClick={(e) => {
             stop(e);
             setEditing(true);
           }}
-          onPointerDown={stop}
           aria-label="Edit task"
           data-testid="task-edit"
           className="rounded-md p-1.5 hover:bg-black/10 dark:hover:bg-white/10"
@@ -154,7 +153,6 @@ export function TaskCard({ task, dndId, onToggle, onDelete, onEdit, compact }: P
             stop(e);
             onDelete(task.id);
           }}
-          onPointerDown={stop}
           aria-label="Delete task"
           data-testid="task-delete"
           className="rounded-md p-1.5 hover:bg-destructive/20 hover:text-destructive"
