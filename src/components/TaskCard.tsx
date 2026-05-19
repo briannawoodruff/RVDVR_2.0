@@ -138,9 +138,8 @@ export function TaskCard({ task, dndId, onToggle, onDelete, onEdit, compact }: P
         </span>
       )}
 
-
-
       <div className="flex items-center gap-0.5 opacity-60 transition-opacity hover:opacity-100 focus-within:opacity-100">
+
         <button
           type="button"
           onClick={(e) => {
