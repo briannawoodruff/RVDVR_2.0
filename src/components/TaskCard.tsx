@@ -51,6 +51,10 @@ export function TaskCard({ task, dndId, onToggle, onDelete, onEdit, compact }: P
   return (
     <div
       ref={setNodeRef}
+      data-testid="task-card"
+      data-task-id={task.id}
+      data-completed={task.completed ? "true" : "false"}
+      data-quadrant={task.quadrant ?? ""}
       style={{
         transform: CSS.Translate.toString(transform),
         transition,
