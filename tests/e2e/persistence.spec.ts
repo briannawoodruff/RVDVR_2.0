@@ -33,6 +33,7 @@ test.describe("persistence across reload", () => {
 
     await page.reload();
     await page.getByTestId("mission-panel").waitFor();
+    await expect(page.getByTestId("mission-list").getByTestId("task-card").first()).toBeVisible();
 
     // Post-reload — same state
     await expect(page.getByTestId("streak-badge")).toHaveAttribute("data-streak", "7");
