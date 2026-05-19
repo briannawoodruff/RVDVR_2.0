@@ -26,7 +26,15 @@ interface Props {
 const stop = (e: React.PointerEvent | React.MouseEvent) => e.stopPropagation();
 
 export function TaskCard({ task, dndId, onToggle, onDelete, onEdit, compact }: Props) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+  const {
+    attributes,
+    listeners,
+    setActivatorNodeRef,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
     id: dndId ?? task.id,
     data: { taskId: task.id },
   });
@@ -60,18 +68,26 @@ export function TaskCard({ task, dndId, onToggle, onDelete, onEdit, compact }: P
         transition,
         opacity: isDragging ? 0.4 : 1,
       }}
-      {...attributes}
-      {...listeners}
       className={cn(
         "group relative flex items-center gap-2 rounded-xl border border-l-[5px] px-2.5 py-2 shadow-sm",
-        "touch-none cursor-grab active:cursor-grabbing select-none",
+        "select-none",
         "hover:shadow-md hover:-translate-y-px transition-[box-shadow,transform]",
         accent,
         task.completed && "opacity-60",
         compact && "py-1.5 text-sm",
       )}
     >
-      <GripVertical className="h-4 w-4 shrink-0 opacity-40 group-hover:opacity-70" />
+      <button
+        ref={setActivatorNodeRef}
+        type="button"
+        aria-label="Drag task"
+        data-testid="task-drag-handle"
+        className="touch-none cursor-grab rounded-md p-0.5 opacity-40 active:cursor-grabbing group-hover:opacity-70"
+        {...attributes}
+        {...listeners}
+      >
+        <GripVertical className="h-4 w-4 shrink-0" />
+      </button>
 
       <button
         aria-label={task.completed ? "Mark incomplete" : "Mark complete"}
@@ -80,7 +96,6 @@ export function TaskCard({ task, dndId, onToggle, onDelete, onEdit, compact }: P
           stop(e);
           onToggle(task.id);
         }}
-        onPointerDown={stop}
         className={cn(
           "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
           task.completed
