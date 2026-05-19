@@ -108,7 +108,6 @@ export function TaskCard({ task, dndId, onToggle, onDelete, onEdit, compact }: P
         {task.completed && <Check className="h-3 w-3" strokeWidth={3} />}
       </button>
 
-      {editing && <div data-testid="DEBUG-editing-true" style={{position:'fixed',top:0,left:0,background:'red',color:'white',zIndex:9999,padding:8}}>EDITING TRUE for {task.id}</div>}
       {editing ? (
         <input
           ref={inputRef}
@@ -138,6 +137,7 @@ export function TaskCard({ task, dndId, onToggle, onDelete, onEdit, compact }: P
           {task.title}
         </span>
       )}
+
 
 
       <div className="flex items-center gap-0.5 opacity-60 transition-opacity hover:opacity-100 focus-within:opacity-100">
