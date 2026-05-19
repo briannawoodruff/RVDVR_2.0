@@ -52,6 +52,8 @@ export function TaskCard({ task, dndId, onToggle, onDelete, onEdit, compact }: P
     setEditing(false);
   };
 
+
+
   const accent = task.quadrant
     ? quadrantStyle[task.quadrant]
     : "bg-card border-l-primary/40";
@@ -137,7 +139,9 @@ export function TaskCard({ task, dndId, onToggle, onDelete, onEdit, compact }: P
       )}
 
       <div className="flex items-center gap-0.5 opacity-60 transition-opacity hover:opacity-100 focus-within:opacity-100">
+
         <button
+          type="button"
           onClick={(e) => {
             stop(e);
             setEditing(true);
@@ -148,6 +152,7 @@ export function TaskCard({ task, dndId, onToggle, onDelete, onEdit, compact }: P
         >
           <Pencil className="h-3.5 w-3.5" />
         </button>
+
         <button
           onClick={(e) => {
             stop(e);
