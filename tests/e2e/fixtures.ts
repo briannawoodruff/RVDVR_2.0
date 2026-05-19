@@ -52,7 +52,7 @@ export function buildSeed(partial: SeedState = {}) {
     id: t.id ?? `seed-${i}-${Math.random().toString(36).slice(2, 8)}`,
     title: t.title,
     notes: t.notes,
-    createdAt: t.createdAt ?? Date.now() - (1000 * i),
+    createdAt: t.createdAt ?? Date.now() - 1000 * i,
     completed: t.completed ?? false,
     completedAt: t.completedAt,
     today: t.today ?? false,
@@ -161,9 +161,9 @@ export async function completeTask(page: Page, title: string) {
     ([key, taskTitle]) => {
       const raw = localStorage.getItem(key as string);
       if (!raw) return false;
-      return JSON.parse(raw).tasks?.some((t: { title: string; completed: boolean }) => (
-        t.title === taskTitle && t.completed
-      ));
+      return JSON.parse(raw).tasks?.some(
+        (t: { title: string; completed: boolean }) => t.title === taskTitle && t.completed,
+      );
     },
     [STORAGE_KEY, title] as const,
   );
@@ -181,11 +181,7 @@ export async function completeTask(page: Page, title: string) {
  * pointer drag with manual mouse moves which dnd-kit's PointerSensor handles
  * deterministically when the distance threshold (5px) is crossed.
  */
-export async function dragTaskTo(
-  page: Page,
-  sourceTitle: string,
-  targetTestId: string,
-) {
+export async function dragTaskTo(page: Page, sourceTitle: string, targetTestId: string) {
   const card = taskByTitle(page, sourceTitle);
   const target = page.getByTestId(targetTestId);
 

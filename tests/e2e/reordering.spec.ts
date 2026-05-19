@@ -27,10 +27,7 @@ test.describe("reordering persists", () => {
     });
 
     const titles = async () =>
-      page
-        .getByTestId("mission-list")
-        .getByTestId("task-title")
-        .allTextContents();
+      page.getByTestId("mission-list").getByTestId("task-title").allTextContents();
 
     expect(await titles()).toEqual(["First", "Second", "Third"]);
 

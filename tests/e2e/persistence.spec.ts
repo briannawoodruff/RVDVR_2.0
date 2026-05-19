@@ -11,7 +11,13 @@ test.describe("persistence across reload", () => {
     await seedApp(page, {
       tasks: [
         { title: "Do first thing", today: true, quadrant: "q1" },
-        { title: "Schedule thing", today: true, quadrant: "q2", completed: true, completedAt: Date.now() },
+        {
+          title: "Schedule thing",
+          today: true,
+          quadrant: "q2",
+          completed: true,
+          completedAt: Date.now(),
+        },
         { title: "Backlog item", today: false, quadrant: null },
       ],
       streak: {
@@ -25,10 +31,16 @@ test.describe("persistence across reload", () => {
     // Pre-reload assertions
     await expect(page.getByTestId("streak-badge")).toHaveAttribute("data-streak", "7");
     await expect(
-      page.getByTestId("quadrant-q1").getByTestId("task-card").filter({ hasText: "Do first thing" }),
+      page
+        .getByTestId("quadrant-q1")
+        .getByTestId("task-card")
+        .filter({ hasText: "Do first thing" }),
     ).toBeVisible();
     await expect(
-      page.getByTestId("quadrant-q2").getByTestId("task-card").filter({ hasText: "Schedule thing" }),
+      page
+        .getByTestId("quadrant-q2")
+        .getByTestId("task-card")
+        .filter({ hasText: "Schedule thing" }),
     ).toHaveAttribute("data-completed", "true");
 
     await page.reload();
@@ -38,10 +50,16 @@ test.describe("persistence across reload", () => {
     // Post-reload — same state
     await expect(page.getByTestId("streak-badge")).toHaveAttribute("data-streak", "7");
     await expect(
-      page.getByTestId("quadrant-q1").getByTestId("task-card").filter({ hasText: "Do first thing" }),
+      page
+        .getByTestId("quadrant-q1")
+        .getByTestId("task-card")
+        .filter({ hasText: "Do first thing" }),
     ).toHaveAttribute("data-quadrant", "q1");
     await expect(
-      page.getByTestId("quadrant-q2").getByTestId("task-card").filter({ hasText: "Schedule thing" }),
+      page
+        .getByTestId("quadrant-q2")
+        .getByTestId("task-card")
+        .filter({ hasText: "Schedule thing" }),
     ).toHaveAttribute("data-completed", "true");
     await expect(
       page.getByTestId("mission-list").getByTestId("task-card").filter({ hasText: "Backlog item" }),
