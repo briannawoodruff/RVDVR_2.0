@@ -95,6 +95,7 @@ export function TaskCard({ task, dndId, onToggle, onDelete, onEdit, compact }: P
       <button
         aria-label={task.completed ? "Mark incomplete" : "Mark complete"}
         data-testid="task-toggle"
+        onPointerDown={stop}
         onClick={(e) => {
           stop(e);
           onToggle(task.id);
