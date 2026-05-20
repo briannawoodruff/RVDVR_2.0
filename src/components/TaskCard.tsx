@@ -43,8 +43,12 @@ export function TaskCard({ task, dndId, onToggle, onDelete, onEdit, compact }: P
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (editing) inputRef.current?.focus();
-  }, [editing]);
+    if (editing) {
+      setDraft(task.title);
+      inputRef.current?.focus();
+      inputRef.current?.select();
+    }
+  }, [editing, task.title]);
 
   const commit = () => {
     const t = draft.trim();
@@ -108,35 +112,39 @@ export function TaskCard({ task, dndId, onToggle, onDelete, onEdit, compact }: P
         {task.completed && <Check className="h-3 w-3" strokeWidth={3} />}
       </button>
 
-      {editing ? (
-        <input
-          ref={inputRef}
-          data-testid="task-edit-input"
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          onBlur={commit}
-          onPointerDown={stop}
-          onClick={stop}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") commit();
-            if (e.key === "Escape") {
-              setDraft(task.title);
-              setEditing(false);
-            }
-          }}
-          className="flex-1 bg-transparent text-sm outline-none"
-        />
-      ) : (
-        <span
-          data-testid="task-title"
-          className={cn(
-            "flex-1 text-left text-sm leading-snug",
-            task.completed && "line-through",
-          )}
-        >
-          {task.title}
-        </span>
-      )}
+      <input
+        ref={inputRef}
+        data-testid="task-edit-input"
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        onBlur={commit}
+        onPointerDown={stop}
+        onClick={stop}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") commit();
+          if (e.key === "Escape") {
+            setDraft(task.title);
+            setEditing(false);
+          }
+        }}
+        className={cn(
+          "flex-1 bg-transparent text-sm outline-none",
+          !editing && "hidden",
+        )}
+        tabIndex={editing ? 0 : -1}
+        aria-hidden={!editing}
+      />
+      <span
+        data-testid="task-title"
+        className={cn(
+          "flex-1 text-left text-sm leading-snug",
+          task.completed && "line-through",
+          editing && "hidden",
+        )}
+      >
+        {task.title}
+      </span>
+
 
       <div className="flex items-center gap-0.5 opacity-60 transition-opacity hover:opacity-100 focus-within:opacity-100">
 
