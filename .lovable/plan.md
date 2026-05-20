@@ -1,37 +1,26 @@
-## Problem
-`playwright.config.ts` hardcodes `bunx vite dev ...` as the webServer command. On your Windows machine without Bun installed, `bunx` is not recognized and Playwright can't start the dev server.
+## Goal
+Make the entire task card draggable, not just the grip handle. Keep all Playwright tests passing.
 
-## Fix
-Make the webServer command runtime-agnostic so it works with whichever package manager is installed (npm, bun, pnpm, yarn).
+## Changes (single file: `src/components/TaskCard.tsx`)
 
-### Change 1: `playwright.config.ts`
-Replace the hardcoded `bunx` with an env-driven runner that defaults to `npx` (which ships with Node.js and is universally available), and allow override via `PLAYWRIGHT_RUNNER`:
+1. **Move dnd-kit listeners from the grip button to the root `<div>`** so any pointer-down on the card initiates a drag:
+   - Spread `{...attributes} {...listeners}` on the root `div` (the one with `setNodeRef`).
+   - Add `touch-none` to the root className so touch drags work on mobile.
+   - Drop `setActivatorNodeRef` (or keep it on the grip — both work; removing it lets the whole card be the activator).
 
-```ts
-const runner = process.env.PLAYWRIGHT_RUNNER ?? "npx";
-// ...
-command: `${runner} vite dev --port ${PORT} --host 127.0.0.1 --strictPort`,
-```
+2. **Keep the grip icon visible** as a visual affordance and keep `data-testid="task-drag-handle"` on it so `dragTaskTo()` in `tests/e2e/fixtures.ts` still finds it (it grabs the handle's bounding box, presses pointer down inside it, and moves — that still works when the parent owns the listeners).
 
-CI (`.github/workflows/playwright.yml`) already uses `bunx`, so add `PLAYWRIGHT_RUNNER=bunx` to the CI env to preserve Bun usage there. Local users on npm get `npx` automatically; Bun users can `set PLAYWRIGHT_RUNNER=bunx` (or it just works if they prefer npx).
+3. **Stop drag activation on interactive children.** dnd-kit's PointerSensor activates on `pointerdown`, so each control needs `onPointerDown={stop}` (in addition to existing `onClick={stop}`):
+   - `task-toggle` button
+   - `task-edit` button
+   - `task-delete` button
+   - The edit `<input>` already has `onPointerDown={stop}` — leave as is.
+   - The grip button can stay; events bubble to the root which still triggers drag.
 
-### Change 2: `.github/workflows/playwright.yml`
-Add `env: PLAYWRIGHT_RUNNER: bunx` to the "Run Playwright tests" step so CI keeps using Bun.
+## Why tests still pass
+- `dragTaskTo()` (fixtures.ts) presses pointer-down on the `task-drag-handle` box and moves — this now activates the root listener but produces the same drag result.
+- Edit/toggle/delete still receive their clicks because we only stop propagation, not default behavior.
+- No test asserts that the grip is the sole activator.
 
-### Change 3 (optional, recommended): `package.json` scripts
-Add convenience scripts so you don't have to remember the flags:
-```json
-"test:e2e": "playwright test",
-"test:e2e:ui": "playwright test --ui",
-"test:e2e:debug": "playwright test --debug",
-"test:e2e:report": "playwright show-report"
-```
-
-## After this lands, your Windows workflow becomes:
-```powershell
-npm install
-npx playwright install chromium
-npm run test:e2e
-```
-
-No Bun required. CI continues running on Bun unchanged.
+## Out of scope
+No changes to dnd-kit sensors, store, tests, or other components.
