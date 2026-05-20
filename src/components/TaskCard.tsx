@@ -148,6 +148,7 @@ export function TaskCard({ task, dndId, onToggle, onDelete, onEdit, compact }: P
 
         <button
           type="button"
+          onPointerDown={stop}
           onClick={(e) => {
             stop(e);
             setEditing(true);
@@ -160,6 +161,7 @@ export function TaskCard({ task, dndId, onToggle, onDelete, onEdit, compact }: P
         </button>
 
         <button
+          onPointerDown={stop}
           onClick={(e) => {
             stop(e);
             onDelete(task.id);
