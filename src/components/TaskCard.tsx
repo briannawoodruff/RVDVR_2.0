@@ -29,7 +29,6 @@ export function TaskCard({ task, dndId, onToggle, onDelete, onEdit, compact }: P
   const {
     attributes,
     listeners,
-    setActivatorNodeRef,
     setNodeRef,
     transform,
     transition,
@@ -76,28 +75,27 @@ export function TaskCard({ task, dndId, onToggle, onDelete, onEdit, compact }: P
       }}
       className={cn(
         "group relative flex items-center gap-2 rounded-xl border border-l-[5px] px-2.5 py-2 shadow-sm",
-        "select-none",
+        "select-none touch-none cursor-grab active:cursor-grabbing",
         "hover:shadow-md hover:-translate-y-px transition-[box-shadow,transform]",
         accent,
         task.completed && "opacity-60",
         compact && "py-1.5 text-sm",
       )}
+      {...attributes}
+      {...listeners}
     >
-      <button
-        ref={setActivatorNodeRef}
-        type="button"
-        aria-label="Drag task"
+      <span
+        aria-hidden="true"
         data-testid="task-drag-handle"
-        className="touch-none cursor-grab rounded-md p-0.5 opacity-40 active:cursor-grabbing group-hover:opacity-70"
-        {...attributes}
-        {...listeners}
+        className="rounded-md p-0.5 opacity-40 group-hover:opacity-70"
       >
         <GripVertical className="h-4 w-4 shrink-0" />
-      </button>
+      </span>
 
       <button
         aria-label={task.completed ? "Mark incomplete" : "Mark complete"}
         data-testid="task-toggle"
+        onPointerDown={stop}
         onClick={(e) => {
           stop(e);
           onToggle(task.id);
@@ -150,6 +148,7 @@ export function TaskCard({ task, dndId, onToggle, onDelete, onEdit, compact }: P
 
         <button
           type="button"
+          onPointerDown={stop}
           onClick={(e) => {
             stop(e);
             setEditing(true);
@@ -162,6 +161,7 @@ export function TaskCard({ task, dndId, onToggle, onDelete, onEdit, compact }: P
         </button>
 
         <button
+          onPointerDown={stop}
           onClick={(e) => {
             stop(e);
             onDelete(task.id);
