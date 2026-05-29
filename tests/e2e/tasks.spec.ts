@@ -1,5 +1,5 @@
 import { test, expect } from "./fixtures";
-import { addMissionTask, openEditor } from "./fixtures";
+import { addMissionTask, openEditor, taskByTitle } from "./fixtures";
 
 test.describe("task crud", () => {
   test("add task appears in Mission Panel", async ({ app }) => {
@@ -21,14 +21,11 @@ test.describe("task crud", () => {
 
   test("edit task title via pencil", async ({ app }) => {
     await addMissionTask(app, "Original title");
-    const card = app
-      .getByTestId("mission-list")
-      .getByTestId("task-card")
-      .filter({ hasText: "Original title" });
+    const card = taskByTitle(app, "Original title");
     const input = await openEditor(card);
     await input.fill("Renamed");
     await input.press("Enter");
-    await expect(card.getByTestId("task-title")).toHaveText("Renamed");
+    await expect(taskByTitle(app, "Renamed").getByTestId("task-title")).toHaveText("Renamed");
   });
 
   test("delete removes task", async ({ app }) => {
