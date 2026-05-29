@@ -1,4 +1,5 @@
 import { test, expect, seedApp, readState, addMissionTask, completeTask } from "./fixtures";
+import { format } from "date-fns";
 
 /**
  * Streak logic lives in src/lib/streak.ts.
@@ -65,7 +66,7 @@ test.describe("streak: date edge cases (seeded)", () => {
   const dayOffset = (n: number) => {
     const d = new Date();
     d.setDate(d.getDate() + n);
-    return d.toISOString().slice(0, 10);
+    return format(d, "yyyy-MM-dd");
   };
 
   test("gap > 1 day resets streak on app load (reconcileStreak)", async ({ page }) => {
@@ -151,7 +152,7 @@ test.describe("break-day (rest day) logic", () => {
     const ago = (n: number) => {
       const d = new Date();
       d.setDate(d.getDate() - n);
-      return d.toISOString().slice(0, 10);
+      return format(d, "yyyy-MM-dd");
     };
     await seedApp(page, {
       streak: {
@@ -187,7 +188,7 @@ test.describe("break-day (rest day) logic", () => {
     const ago = (n: number) => {
       const d = new Date();
       d.setDate(d.getDate() - n);
-      return d.toISOString().slice(0, 10);
+      return format(d, "yyyy-MM-dd");
     };
     await seedApp(page, {
       streak: {
