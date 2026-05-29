@@ -40,7 +40,7 @@ export function HelpDialog({ open, onClose }: Props) {
 
         <div className="mt-6 space-y-5 text-sm">
           <section>
-            <h3 className="font-semibold">1 · Brain dump into Mission</h3>
+            <h3 className="font-semibold">1 · Brain dump into the Mission Panel</h3>
             <p className="text-muted-foreground">
               Add every task — big, small, vague. Nothing is too small to write down.
             </p>
